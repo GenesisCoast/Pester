@@ -52,7 +52,7 @@ function EscapeSingleQuotedStringContent ($Content) {
     }
 }
 
-function Create-MockHook ($contextInfo, $InvokeMockCallback) {
+function Create-MockHook ($contextInfo, $InvokeMockCallback, [switch]$IncludeCommonParameters) {
     $commandName = $contextInfo.Command.Name
     $moduleName = if ($contextInfo.IsFromRequestedModule) { $contextInfo.Module.Name } else { '' }
     $metadata = $null
@@ -63,14 +63,17 @@ function Create-MockHook ($contextInfo, $InvokeMockCallback) {
 
     if ($contextInfo.Command.psobject.Properties['ScriptBlock'] -or $contextInfo.Command.CommandType -eq 'Cmdlet') {
         $metadata = [System.Management.Automation.CommandMetaData]$contextInfo.Command
-        $null = $metadata.Parameters.Remove('Verbose')
-        $null = $metadata.Parameters.Remove('Debug')
-        $null = $metadata.Parameters.Remove('ErrorAction')
-        $null = $metadata.Parameters.Remove('WarningAction')
-        $null = $metadata.Parameters.Remove('ErrorVariable')
-        $null = $metadata.Parameters.Remove('WarningVariable')
-        $null = $metadata.Parameters.Remove('OutVariable')
-        $null = $metadata.Parameters.Remove('OutBuffer')
+        
+        if (-not $IncludeCommonParameters) {
+            $null = $metadata.Parameters.Remove('Verbose')
+            $null = $metadata.Parameters.Remove('Debug')
+            $null = $metadata.Parameters.Remove('ErrorAction')
+            $null = $metadata.Parameters.Remove('WarningAction')
+            $null = $metadata.Parameters.Remove('ErrorVariable')
+            $null = $metadata.Parameters.Remove('WarningVariable')
+            $null = $metadata.Parameters.Remove('OutVariable')
+            $null = $metadata.Parameters.Remove('OutBuffer')
+        }
 
         # Some versions of PowerShell may include dynamic parameters here
         # We will filter them out and add them at the end to be
