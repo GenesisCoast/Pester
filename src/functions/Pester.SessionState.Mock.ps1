@@ -124,6 +124,10 @@ that should not have any validation rules applied. This relaxes the
 validation requirements, and allows functions that are strict about their
 parameter validation to be mocked more easily.
 
+.PARAMETER IncludeCommonParameters
+Optional switch for including all the common parameters when creating the
+mock.
+
 .EXAMPLE
 Mock Get-ChildItem { return @{FullName = "A_File.TXT"} }
 
@@ -185,6 +189,15 @@ Using this Mock, all calls to Get-ChildItem from within the MyTestModule module
 will return a hashtable with a FullName property returning "A_File.TXT"
 
 .EXAMPLE
+Mock Get-ChildItem { return @{FullName = "A_File.TXT"} } -IncludeCommonParameters
+
+Using this Mock, the command Get-ChildItem will be mocked including the common
+parameters. This allows for the common parameters to be used in parameter filters
+in order to filter the the mocking behaviour.
+
+
+
+.EXAMPLE
 ```powershell
 Get-Module -Name ModuleMockExample | Remove-Module
 New-Module -Name ModuleMockExample  -ScriptBlock {
@@ -230,7 +243,8 @@ https://pester.dev/docs/usage/mocking
         [ScriptBlock]$ParameterFilter,
         [string]$ModuleName,
         [string[]]$RemoveParameterType,
-        [string[]]$RemoveParameterValidation
+        [string[]]$RemoveParameterValidation,
+        [switch]$IncludeCommonParameters
     )
     if (Is-Discovery) {
         # this is to allow mocks in between Describe and It which is discouraged but common
@@ -265,7 +279,7 @@ https://pester.dev/docs/usage/mocking
         if ($PesterPreference.Debug.WriteDebugMessages.Value) {
             Write-PesterDebugMessage -Scope Mock -Message "Mock does not have a hook yet, creating a new one."
         }
-        $hook = Create-MockHook -ContextInfo $contextInfo -InvokeMockCallback $invokeMockCallBack
+        $hook = Create-MockHook -ContextInfo $contextInfo -InvokeMockCallback $invokeMockCallBack -IncludeCommonParameters:$IncludeCommonParameters
         $mockData.Hooks.Add($hook)
     }
 
