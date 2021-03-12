@@ -317,6 +317,49 @@ Describe "When calling Mock on existing cmdlet with Common params" {
     }
 }
 
+Describe "When calling Mock on existing cmdlet with Common params, and the IncludeCommonParameters flag" {
+    BeforeAll {
+        Mock CommonParamFunction -IncludeCommonParameters
+        $result = [string](Get-Alias CommonParamFunction).ResolvedCommand.ScriptBlock
+    }
+
+    It "Should strip verbose" {
+        $result.contains("`${Verbose}") | Should -Be $true
+    }
+
+    It "Should strip Debug" {
+        $result.contains("`${Debug}") | Should -Be $true
+    }
+
+    It "Should strip ErrorAction" {
+        $result.contains("`${ErrorAction}") | Should -Be $true
+    }
+
+    It "Should strip WarningAction" {
+        $result.contains("`${WarningAction}") | Should -Be $true
+    }
+
+    It "Should strip ErrorVariable" {
+        $result.contains("`${ErrorVariable}") | Should -Be $true
+    }
+
+    It "Should strip WarningVariable" {
+        $result.contains("`${WarningVariable}") | Should -Be $true
+    }
+
+    It "Should strip OutVariable" {
+        $result.contains("`${OutVariable}") | Should -Be $true
+    }
+
+    It "Should strip OutBuffer" {
+        $result.contains("`${OutBuffer}") | Should -Be $true
+    }
+
+    It "Should not strip an Uncommon param" {
+        $result.contains("`${Uncommon}") | Should -Be $true
+    }
+}
+
 Describe "When calling Mock on non-existing function" {
 
 
